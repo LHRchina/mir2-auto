@@ -1,6 +1,6 @@
 ./data
-./__pycache__
 ./.vscode
 ./.ipynb_checkpoints
 ./.idea
 ./.git
+./__pycache__

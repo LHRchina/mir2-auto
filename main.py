@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 from pygetwindow import getWindowsWithTitle
 import pywinauto
@@ -75,6 +76,8 @@ def press_key(key, duration=0.1):
     :param key: The key to press (e.g., 'w', 'a', 's', 'd')
     :param duration: How long to hold the key down (in seconds)
     """
+    print(f"Pressing key: {key}")
+    # window.set_focus()  # Activate the window
     pyautogui.keyDown(key)
     time.sleep(duration)
     pyautogui.keyUp(key)
@@ -112,7 +115,7 @@ if len(current_pos) == 6:
     x_str = current_pos[:3]
     y_str = current_pos[3:]
 else:
-    mv.move_bottom()
+    # mv.move_bottom()
     current_pos = co.get_position()
     # if current_pos contains : then split the string
 
@@ -124,14 +127,24 @@ else:
 
 
 # x_str, y_str = current_pos.split(':')
-start_pos = (int(x_str), int(y_str))
+# start_pos = (int(x_str), int(y_str))
 
 # Define the goal position
 goal_pos = (417,567)  # Replace with your target position
 
 # Get the path using A* algorithm
-path = astar(start_pos, goal_pos, obstacles)
+# path = astar(start_pos, goal_pos, obstacles)
 
+def press_key_in_window(window, key, duration=0.1):
+    window.set_focus()
+    time.sleep(0.5)  
+    pyautogui.keyDown(key)
+    time.sleep(duration)
+    pyautogui.keyUp(key)
+
+def press_key_async(window, key, duration=0.1):
+    t = threading.Thread(target=press_key_in_window, args=(window, key, duration))
+    t.start()
 
 def move_to_target():
     if path:
@@ -148,11 +161,36 @@ def move_to_target():
     else:
         print("No path found to the goal")
 
+def press_key_loop(window,key, duration=0.1, interval=1.0):
+    """
+    Continuously press a key in a separate thread.
+    
+    :param key: The key to press
+    :param duration: How long to hold the key
+    :param interval: Wait time between presses
+    """
+    def loop_press(window):
+        while True:
+            # window.set_focus()
+            pyautogui.keyDown(key)
+            time.sleep(duration)
+            pyautogui.keyUp(key)
+            time.sleep(interval)
+    
+    t = threading.Thread(target=loop_press,args=(window,), daemon=True)
+    t.start()
+
 def main():
+    # test_move()
+    # window.set_focus()  # Activate the window
+    # mv.move_bottom()
+    press_key_loop(window,'f2', 0.5, 15)
     try:
         while True:
-            press_key('f2', 0.5)
-            time.sleep(2)
+            # press_key('f2', 0.5)
+            # press_key_async(window, 'f2', 0.5)
+            print("Press end...")
+            time.sleep(10)  # Small delay between key presses
     except KeyboardInterrupt:
         print("\nProgram interrupted by user. Exiting gracefully...")
         # Perform any necessary cleanup here
@@ -163,7 +201,7 @@ def main():
 
 
 
-def map_to_screen(x, y, window):
+# def map_to_screen(x, y, window):
     # Implement the conversion from game map coordinates to screen coordinates
     # This depends on how the game displays positions
     # Example (needs adjustment based on actual game scaling):
