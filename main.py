@@ -12,9 +12,19 @@ import warnings
 from move import player_move
 from node import astar
 from position import coordinate
+import threading
+import time
+import pyautogui
+import pygetwindow as gw
+import win32con
+import win32api
+import win32gui
+
+from read_map_file import read_header
+
 
 # ...existing code...
-app = pywinauto.application.Application().connect(path='D:\部落传奇\部落冲突20241214\部落冲突.exe')
+# app = pywinauto.application.Application().connect(path='D:\部落传奇\部落冲突20241214\部落冲突.exe')
 
 # Assuming you know the title of the window
 window_list = getWindowsWithTitle('部落冲突二区')
@@ -36,26 +46,18 @@ else:
     
 sleep_time = 10
 
-middle_x = window.left + window.width//2
-middle_y = window.top + window.height//2+150
+# middle_x = window.left + window.width//2
+# middle_y = window.top + window.height//2+150
 
-top_left_x, top_left_y = (middle_x - 150, middle_y-300)  
-top_right_x, top_right_y = (middle_x+150, middle_y - 300)  
-bottom_left_x, bottom_left_y = ( middle_x- 150, middle_y+20)  
-bottom_right_x, bottom_right_y = ( middle_x+150, middle_y+20)  
+# top_left_x, top_left_y = (middle_x - 150, middle_y-300)  
+# top_right_x, top_right_y = (middle_x+150, middle_y - 300)  
+# bottom_left_x, bottom_left_y = ( middle_x- 150, middle_y+20)  
+# bottom_right_x, bottom_right_y = ( middle_x+150, middle_y+20)  
 
-top_x, top_y = ( middle_x, middle_y - 300)  
-bottom_x, bottom_y = ( middle_x, middle_y)  
-left_x, left_y = ( middle_x - 50, middle_y-220)  
-right_x, right_y = ( middle_x + 150, middle_y-250)  
-
-
-def print_mouse_position():
-    mouse_x, mouse_y = pyautogui.position()
-    relative_x = mouse_x - window.left
-    relative_y = mouse_y - window.top
-    print(f"Mouse Position within window: ({relative_x}, {relative_y})")
-
+# top_x, top_y = ( middle_x, middle_y - 300)  
+# bottom_x, bottom_y = ( middle_x, middle_y)  
+# left_x, left_y = ( middle_x - 50, middle_y-220)  
+# right_x, right_y = ( middle_x + 150, middle_y-250)  
 
 def test_move():
     pyautogui.moveTo(443,241)
@@ -63,11 +65,7 @@ def test_move():
     time.sleep(sleep_time)
     pyautogui.mouseUp(button='right')
 
-def press_f2():
 
-    window.set_focus()  # Activate the window
-    time.sleep(0.5)  # Wait for the window to be active
-    pyautogui.press('f2')
 
 def press_key(key, duration=0.1):
     """
@@ -84,18 +82,18 @@ def press_key(key, duration=0.1):
 
 # ... (existing code to set up window and positions)
     
-co = coordinate(roi_left, roi_top, roi_width, roi_height)
-mv = player_move(
-    top_left_x, top_left_y, 
-    top_right_x, top_right_y, 
-    bottom_left_x, bottom_left_y, 
-    bottom_right_x, bottom_right_y, 
-    top_x, top_y, 
-    bottom_x, bottom_y, 
-    left_x, left_y, 
-    right_x, right_y, 
-    1  # Adjust sleep_time as needed
-)
+# co = coordinate(roi_left, roi_top, roi_width, roi_height)
+# mv = player_move(
+#     top_left_x, top_left_y, 
+#     top_right_x, top_right_y, 
+#     bottom_left_x, bottom_left_y, 
+#     bottom_right_x, bottom_right_y, 
+#     top_x, top_y, 
+#     bottom_x, bottom_y, 
+#     left_x, left_y, 
+#     right_x, right_y, 
+#     1  # Adjust sleep_time as needed
+# )
 
 # Define obstacles as a set of positions
 obstacles = {
@@ -105,35 +103,35 @@ obstacles = {
     # Add more obstacle positions as needed
 }
 
-# Get current position
-current_pos = co.get_position()
-# Convert the extracted text to coordinates
-#if current_pos is 6 digits use the first 3 digits as x and the last 3 digits as y
-#if current_pos is other digits move to next position then get the position again
+# # Get current position
+# current_pos = co.get_position()
+# # Convert the extracted text to coordinates
+# #if current_pos is 6 digits use the first 3 digits as x and the last 3 digits as y
+# #if current_pos is other digits move to next position then get the position again
 
-if len(current_pos) == 6:
-    x_str = current_pos[:3]
-    y_str = current_pos[3:]
-else:
-    # mv.move_bottom()
-    current_pos = co.get_position()
-    # if current_pos contains : then split the string
+# if len(current_pos) == 6:
+#     x_str = current_pos[:3]
+#     y_str = current_pos[3:]
+# else:
+#     # mv.move_bottom()
+#     current_pos = co.get_position()
+#     # if current_pos contains : then split the string
 
-    if ":" in current_pos:
-        x_str, y_str = current_pos.split(':')
-    else:
-        x_str = current_pos[:3]
-        y_str = current_pos[3:]
+#     if ":" in current_pos:
+#         x_str, y_str = current_pos.split(':')
+#     else:
+#         x_str = current_pos[:3]
+#         y_str = current_pos[3:]
 
 
-# x_str, y_str = current_pos.split(':')
-# start_pos = (int(x_str), int(y_str))
+# # x_str, y_str = current_pos.split(':')
+# # start_pos = (int(x_str), int(y_str))
 
-# Define the goal position
-goal_pos = (417,567)  # Replace with your target position
+# # Define the goal position
+# goal_pos = (417,567)  # Replace with your target position
 
-# Get the path using A* algorithm
-# path = astar(start_pos, goal_pos, obstacles)
+# # Get the path using A* algorithm
+# # path = astar(start_pos, goal_pos, obstacles)
 
 def press_key_in_window(window, key, duration=0.1):
     window.set_focus()
@@ -180,24 +178,39 @@ def press_key_loop(window,key, duration=0.1, interval=1.0):
     t = threading.Thread(target=loop_press,args=(window,), daemon=True)
     t.start()
 
+
 def main():
+    #read all the files in the dirctory :C:\Users\along-PC\Desktop\mir\Map\
+    directory = r'C:\Users\along-PC\Desktop\mir\Map'    
+    # List all files in the directory
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        
+        # Check if it's a file
+        if os.path.isfile(file_path):
+            print(f"Reading header for file: {file_path}")
+            read_header(file_path)
+
+
+
+    # read_header(r"0.map")
     # test_move()
     # window.set_focus()  # Activate the window
     # mv.move_bottom()
-    press_key_loop(window,'f2', 0.5, 15)
-    try:
-        while True:
-            # press_key('f2', 0.5)
-            # press_key_async(window, 'f2', 0.5)
-            print("Press end...")
-            time.sleep(10)  # Small delay between key presses
-    except KeyboardInterrupt:
-        print("\nProgram interrupted by user. Exiting gracefully...")
-        # Perform any necessary cleanup here
-        # For example, releasing keys, closing files, etc.
-    finally:
-        # Optional: Code here will run regardless of whether an exception occurred
-        print("Cleanup complete.")
+    # press_key_loop(window,'f2', 0.5, 15)
+    # try:
+    #     while True:
+    #         # press_key('f2', 0.5)
+    #         # press_key_async(window, 'f2', 0.5)
+    #         print("Press end...")
+    #         time.sleep(10)  # Small delay between key presses
+    # except KeyboardInterrupt:
+    #     print("\nProgram interrupted by user. Exiting gracefully...")
+    #     # Perform any necessary cleanup here
+    #     # For example, releasing keys, closing files, etc.
+    # finally:
+    #     # Optional: Code here will run regardless of whether an exception occurred
+    #     print("Cleanup complete.")
 
 
 

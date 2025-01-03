@@ -1,0 +1,12 @@
+numpy
+pandas
+requests
+flask
+pytest
+pygetwindow
+pywinauto
+pyautogui
+pytesseract
+Pillow
+pywin32
+opencv-python
